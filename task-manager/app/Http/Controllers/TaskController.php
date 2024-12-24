@@ -7,22 +7,18 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    // Fetch all tasks
+    // Show all tasks
     public function index()
     {
-        return response()->json(Task::all());
+        $tasks = Task::with('project', 'users')->get();  // Eager loading project and users
+        return response()->json($tasks);
     }
 
-    // Fetch a single task by ID
+    // Show a single task
     public function show($id)
     {
-        $task = Task::find($id);
-
-        if ($task) {
-            return response()->json($task);
-        }
-
-        return response()->json(['message' => 'Task not found'], 404);
+        $task = Task::with('project', 'users')->findOrFail($id);
+        return response()->json($task);
     }
 
     // Create a new task
@@ -30,46 +26,40 @@ class TaskController extends Controller
     {
         $request->validate([
             'project_id' => 'required|exists:projects,id',
-            'name' => 'required',
-            'status' => 'required|in:Pending,In Progress,Completed',
-            'priority' => 'nullable|in:Low,Medium,High',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:pending,in_progress,completed',
+            'priority' => 'required|in:low,medium,high',
+            'due_date' => 'nullable|date',
         ]);
 
         $task = Task::create($request->all());
-
         return response()->json($task, 201);
     }
 
-    // Update an existing task
+    // Update a task
     public function update(Request $request, $id)
     {
-        $task = Task::find($id);
+        $task = Task::findOrFail($id);
 
-        if ($task) {
-            $request->validate([
-                'name' => 'required',
-                'status' => 'required|in:Pending,In Progress,Completed',
-                'priority' => 'nullable|in:Low,Medium,High',
-            ]);
+        $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:pending,in_progress,completed',
+            'priority' => 'required|in:low,medium,high',
+            'due_date' => 'nullable|date',
+        ]);
 
-            $task->update($request->all());
-
-            return response()->json($task);
-        }
-
-        return response()->json(['message' => 'Task not found'], 404);
+        $task->update($request->all());
+        return response()->json($task);
     }
 
     // Delete a task
     public function destroy($id)
     {
-        $task = Task::find($id);
-
-        if ($task) {
-            $task->delete();
-            return response()->json(['message' => 'Task deleted']);
-        }
-
-        return response()->json(['message' => 'Task not found'], 404);
+        $task = Task::findOrFail($id);
+        $task->delete();
+        return response()->json(null, 204);
     }
 }

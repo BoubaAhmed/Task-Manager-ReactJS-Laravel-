@@ -1,4 +1,5 @@
-<?php
+<?php 
+
 namespace App\Http\Controllers;
 
 use App\Models\Project;
@@ -6,68 +7,59 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    // Fetch all projects
+    // Show all projects
     public function index()
     {
-        return response()->json(Project::all());
+        $projects = Project::with('tasks')->get();  // Eager loading tasks
+        return response()->json($projects);
     }
 
-    // Fetch a single project by ID
+    // Show a single project
     public function show($id)
     {
-        $project = Project::find($id);
-
-        if ($project) {
-            return response()->json($project);
-        }
-
-        return response()->json(['message' => 'Project not found'], 404);
+        $project = Project::with('tasks')->findOrFail($id);
+        return response()->json($project);
     }
 
     // Create a new project
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'start_date' => 'required|date',
-            'status' => 'required|in:Active,Completed,On Hold',
+            'end_date' => 'nullable|date',
+            'priority' => 'required|in:low,medium,high',
+            'status' => 'required|in:pending,in_progress,completed',
         ]);
 
         $project = Project::create($request->all());
-
         return response()->json($project, 201);
     }
 
-    // Update an existing project
+    // Update a project
     public function update(Request $request, $id)
     {
-        $project = Project::find($id);
+        $project = Project::findOrFail($id);
 
-        if ($project) {
-            $request->validate([
-                'name' => 'required',
-                'start_date' => 'required|date',
-                'status' => 'required|in:Active,Completed,On Hold',
-            ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date',
+            'priority' => 'required|in:low,medium,high',
+            'status' => 'required|in:pending,in_progress,completed',
+        ]);
 
-            $project->update($request->all());
-
-            return response()->json($project);
-        }
-
-        return response()->json(['message' => 'Project not found'], 404);
+        $project->update($request->all());
+        return response()->json($project);
     }
 
     // Delete a project
     public function destroy($id)
     {
-        $project = Project::find($id);
-
-        if ($project) {
-            $project->delete();
-            return response()->json(['message' => 'Project deleted']);
-        }
-
-        return response()->json(['message' => 'Project not found'], 404);
+        $project = Project::findOrFail($id);
+        $project->delete();
+        return response()->json(null, 204);
     }
 }

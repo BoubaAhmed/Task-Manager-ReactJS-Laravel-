@@ -1,11 +1,12 @@
 body {
   margin: 0;
-  font-family: "Outfit", serif;
+  /* font-family: "Outfit", serif; */
+  font-family: "Capriola", serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+/* 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
+
+  
+} */

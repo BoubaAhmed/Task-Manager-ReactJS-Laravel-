@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\UserTask;
@@ -17,32 +16,14 @@ class UserTaskController extends Controller
         ]);
 
         $userTask = UserTask::create($request->all());
-
         return response()->json($userTask, 201);
     }
 
-    // Fetch all tasks assigned to a user
-    public function userTasks($userId)
+    // Remove a task assignment from a user
+    public function destroy($userId, $taskId)
     {
-        $userTasks = UserTask::where('user_id', $userId)->get();
-
-        if ($userTasks->isNotEmpty()) {
-            return response()->json($userTasks);
-        }
-
-        return response()->json(['message' => 'No tasks assigned to this user'], 404);
-    }
-
-    // Remove a task assignment
-    public function destroy($id)
-    {
-        $userTask = UserTask::find($id);
-
-        if ($userTask) {
-            $userTask->delete();
-            return response()->json(['message' => 'UserTask assignment deleted']);
-        }
-
-        return response()->json(['message' => 'UserTask not found'], 404);
+        $userTask = UserTask::where('user_id', $userId)->where('task_id', $taskId)->firstOrFail();
+        $userTask->delete();
+        return response()->json(null, 204);
     }
 }

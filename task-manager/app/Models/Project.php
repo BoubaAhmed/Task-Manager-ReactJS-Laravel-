@@ -7,11 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model
 {
     use HasFactory;
-
-    // The table associated with the model.
     protected $table = 'projects';
-
-    // The attributes that are mass assignable.
     protected $fillable = [
         'name',
         'description',
@@ -20,8 +16,7 @@ class Project extends Model
         'priority',
         'status',
     ];
-
-    // Define relationship with tasks (one-to-many)
+    //(one-to-many)
     public function tasks()
     {
         return $this->hasMany(Task::class);

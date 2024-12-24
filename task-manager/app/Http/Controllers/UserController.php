@@ -6,74 +6,51 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // Fetch all users
     public function index()
     {
-        return response()->json(User::all());
+        $users = User::all();
+        return response()->json($users);
     }
-
-    // Fetch a single user by ID
     public function show($id)
     {
-        $user = User::find($id);
-
-        if ($user) {
-            return response()->json($user);
-        }
-
-        return response()->json(['message' => 'User not found'], 404);
+        $user = User::with('tasks')->findOrFail($id);
+        return response()->json($user);
     }
-
-    // Create a new user
     public function store(Request $request)
     {
         $request->validate([
-            'username' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'role' => 'required|in:Designer,Developer,Tester',
-            'status' => 'required|in:Active,Inactive',
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string',
+            'role' => 'in:Designer,Developer,Tester',
+            'status' => 'required|in:active,inactive',
         ]);
 
         $user = User::create($request->all());
-
         return response()->json($user, 201);
     }
 
-    // Update an existing user
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
-
-        if ($user) {
-            $request->validate([
-                'username' => 'unique:users,username,' . $id,
-                'email' => 'email|unique:users,email,' . $id,
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'role' => 'required|in:Designer,Developer,Tester',
-                'status' => 'required|in:Active,Inactive',
-            ]);
-
-            $user->update($request->all());
-
-            return response()->json($user);
-        }
-
-        return response()->json(['message' => 'User not found'], 404);
+        $user = User::findOrFail($id);
+        $request->validate([
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string',
+            'role' => 'in:Designer,Developer,Tester',
+            'status' => 'required|in:Active,Inactive',
+        ]);
+        $user->update($request->all());
+        return response()->json($user, 200);
     }
-
-    // Delete a user
     public function destroy($id)
     {
-        $user = User::find($id);
-
-        if ($user) {
-            $user->delete();
-            return response()->json(['message' => 'User deleted']);
-        }
-
-        return response()->json(['message' => 'User not found'], 404);
+        $user = User::findOrFail($id);
+        $user->delete();
+        return response()->json(null, 204);
     }
 }

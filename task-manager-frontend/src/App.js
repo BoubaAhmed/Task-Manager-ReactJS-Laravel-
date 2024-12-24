@@ -1,31 +1,36 @@
 import React from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import TaskManager from './TaskManager';
-import ProjectManager from './ProjectManager';
-import UsersManager from './UsersManager';
-import Navbar from './components/Navbar';
-import Users from './components/Users';
-import Projects from './components/Projects';
-import Tasks from './components/Tasks';
-import TaskAssignments from './components/Assignment';
-
+import Projects from './components/Projects/Projects';
+import Tasks from './components/Tasks/Tasks';
+import Assignment from './components/Assignment/Assignment';
+import './App.css'; // Global styles
+import Sidebar from './components/Navs/Sidebar';
+import Users from './components/Users/Users';
+import AddUser from './components/Users/AddUser';
+import ReadUser from './components/Users/ReadUser';
+import EditUser from './components/Users/EditUser';
+ 
 function App() {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Users />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/tasks" element={<Tasks />} />
-        <Route path="/task-assignments" element={<TaskAssignments />} />
-
-        {/* <Route path="/" element={<TaskManager />} /> */}
-        <Route path="/users" element={<UsersManager />} />
-        <Route path="/user" element={<Users />} />
-        {/* <Route path="/projects" element={<ProjectManager />} /> */}
-      </Routes>
+      <div className="app-container">
+        <Sidebar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Users />} />
+            <Route path="/user/create" element={<AddUser />} /> 
+            <Route path="/user/:id" element={<ReadUser />} />
+            <Route path="/user/:id/edit" element={<EditUser />} />
+            
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/task-assignments" element={<Assignment />} />
+          </Routes>
+        </div>
+      </div>
     </Router>
-    
   );
 }
 
